@@ -1,2 +1,7 @@
-Scripts\activate.bat
-C:\Users\denni\Desktop\Backend\challenge_1\challenge_1_app\python manage.py runserver
+@echo off
+call Scripts\activate
+cd challenge_1
+start http://127.0.0.1:8000/
+python manage.py runserver
+
+

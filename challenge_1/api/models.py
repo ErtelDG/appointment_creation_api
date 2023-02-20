@@ -28,7 +28,7 @@ class Patient(models.Model):
     is_patient = models.BooleanField(default=True)
       
 class Appointment(models.Model):
-    title = models.CharField(max_length=50, default="No title"),
+    title = models.CharField(max_length=50, default="No title")
     description = models.CharField(max_length=100, default="No description")
     patient = models.OneToOneField(Patient,on_delete=models.CASCADE)
     doctor = models.OneToOneField(Doctor,on_delete=models.CASCADE)
