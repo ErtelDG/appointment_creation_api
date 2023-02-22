@@ -22,7 +22,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ['id', 'user']
+        fields = ['id', 'user', 'is_patient']
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
