@@ -11,11 +11,11 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class DoctorSerializer(serializers.ModelSerializer):
-  #user = UserSerializer()
-  
+  user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+    
   class Meta:
     model = Doctor
-    fields = ['id', 'user', 'is_doctor', 'speciality','title']
+    fields = ['id', 'user',  'is_doctor', 'speciality','title']
 
 
 
