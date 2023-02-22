@@ -1,39 +1,36 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Doctor, Appointment, Patient
+from django.contrib.auth.models import User
 
 # Serializers define the API representation.
-class DoctorSerializer(serializers.HyperlinkedModelSerializer):
+class UsersSerializer(serializers.ModelSerializer):
   
-  def getUserDetails(self, obj):
-        userDetailsJSON = {'username': obj.user.username}
-        return userDetailsJSON
+  class Meta:
+    model = User
+    fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
-  user_detail = serializers.SerializerMethodField("getUserDetails")
+
+class DoctorSerializer(serializers.ModelSerializer):
+  #user = UserSerializer()
   
   class Meta:
     model = Doctor
-    fields = ['id', 'is_doctor', 'user_detail', 'speciality','title']
+    fields = ['id', 'user', 'is_doctor', 'speciality','title']
 
 
 
-class PatientSerializer(serializers.HyperlinkedModelSerializer):
-  
-  def getUserDetails(self, obj):
-        userDetailsJSON = {'username': obj.user.username}
-        return userDetailsJSON
-
-  user_detail = serializers.SerializerMethodField("getUserDetails")
+# It creates a serializer for the Patient model.
+class PatientSerializer(serializers.ModelSerializer):
+  #user = UserSerializer()
   
   class Meta:
     model = Patient
-    fields = ['id', 'user_detail', 'is_patient']
-
-
-
-class AppointmentSerializer(serializers.HyperlinkedModelSerializer):
+    fields = ['id', 'user', 'is_patient']
+    
   
-  
+# This class is a serializer for the Appointment model
+class AppointmentSerializer(serializers.ModelSerializer):
+     
   class Meta:
     model = Appointment
     fields = ['id', 'title', 'description','patient', 'doctor', 'date', 'created_at']

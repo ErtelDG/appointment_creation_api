@@ -1,14 +1,12 @@
-from django.urls import path, include
-from rest_framework import routers
-from .views import DoctorViewSet, PatientViewSet, AppointmentViewSet
-
-from . import views
-
-router = routers.DefaultRouter()
-router.register(r'doctors', DoctorViewSet)
-router.register(r'patients', PatientViewSet)
-router.register(r'appointments', AppointmentViewSet)
+from django.urls import path
+from api import views
+from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('doctors', views.DoctorViewSet.as_view()),
+    path('patients', views.PatientViewSet.as_view()),
+    path('appointments', views.AppointmentViewSet.as_view()),
+    path('users', views.UsersViewSet.as_view()),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
