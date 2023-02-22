@@ -14,57 +14,59 @@ from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework import status
 
+class DoctorViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
 
-@api_view (['GET', 'POST'])
-def DoctorViewSet(request):
-    if request.method == "GET":
-        doctors = models.Doctor.objects.all()
-        doctors_serializer = serializers.DoctorSerializer(doctors, many=True)
-        return JsonResponse(doctors_serializer.data, safe=False)
-    
-    elif request.method == 'POST':
-        new_doctor_data = JSONParser().parse(request)
-        user = User.objects.filter(pk = new_doctor_data['user'])
-        print(user.count)
-        if ( user.count == 0 ):
-            return JsonResponse({'message':'user not exists'}, status=status.HTTP_400_BAD_REQUEST)
-        new_doctor_serializer = serializers.DoctorSerializer(data=new_doctor_data)
-        if new_doctor_serializer.is_valid():
-            new_doctor_serializer.save()
-            return JsonResponse(new_doctor_serializer.data, status=status.HTTP_201_CREATED)
-        return JsonResponse(new_doctor_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+    def list(self, request):
+        queryset = models.Doctor.objects.all()
+        serializer = serializers.DoctorSerializer(queryset, many=True)
+        return Response(serializer.data)
 
+    def create(self, request):
+        # Erstelle zunächst einen neuen User
+        user_serializer = serializers.UserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user = user_serializer.save()
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+       
+        # Erstelle dann den neuen Doctor mit dem User als ForeignKey
+        doctor_serializer = serializers.DoctorSerializer(data=request.data)
+        if doctor_serializer.is_valid():
+            doctor_serializer.save(user=user)
+            return Response(doctor_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            user.delete()
+            return Response(doctor_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def retrieve(self, request, pk=None):
+        queryset = models.Doctor.objects.all()
+        doctor = queryset.filter(id=pk).first()
+        if doctor:
+            serializer = serializers.DoctorSerializer(doctor)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    def update(self, request, pk=None):
+        doctor = models.Doctor.objects.filter(id=pk).first()
+        if not doctor:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
 
-#class DoctorViewSet(APIView):
-#    permission_classes = [permissions.IsAuthenticated]
-#       try:
-#       doctor_instance = models.Doctor.objects.get(pk = self.request.data['pk'])
-#   except models.Doctor.DoesNotExist:
-#       return JsonResponse({'message':'The tutorial does not exist'}, status=status.HTTP_404_NOT_FOUND)
-#              
-#   def get(self, request, format=None):
-#       queryset = models.Doctor.objects.all()
-#       serializer = serializers.DoctorSerializer(queryset, many=True)
-#       return Response(serializer.data)
-#   
-#   def post (self, request, format=None):
-#       serializer = serializers.DoctorSerializer(data=request.data)
-#       if serializer.is_valid():
-#           serializer.save()
-#           return Response(serializer.data, status=status.HTTP_201_CREATED)
-#       return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
-#   
-#   def put(self, request, format=None):
-#       
-#           
-#       serializer = serializers.DoctorSerializer(doctor_instance, data=request.data)
-#       if serializer.is_valid():
-#           serializer.save()
-#           return Response(serializer.data)
-#       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = serializers.DoctorSerializer(doctor, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        doctor = models.Doctor.objects.filter(id=pk).first()
+        if not doctor:
+            return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+        doctor_name = doctor.user.username
+        doctor.delete()
+        return Response({'message':'user deleted successully', 'doctor':doctor_name},status=status.HTTP_200_OK)
 
 
 class PatientViewSet(APIView):

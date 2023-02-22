@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 TITLE_CHOICES = [
   ('Dr.', 'Dr.'),
   ('Prof. Dr.', 'Prof. Dr.'),
-  ('Dr. rer. nat', 'Dr. rer. nat.')
+  ('Dr. rer. nat.', 'Dr. rer. nat.')
 ]
 
 SPECIALITY_CHOICES = [
