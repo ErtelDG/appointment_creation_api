@@ -181,10 +181,10 @@ class AppointmentViewSet(viewsets.ViewSet):
         try:
             appointment = models.Appointment.objects.get(pk=pk)
         except models.Appointment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'appointment not found'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = serializers.AppointmentSerializer(appointment)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, pk=None):
         try:
@@ -195,17 +195,17 @@ class AppointmentViewSet(viewsets.ViewSet):
         serializer = serializers.AppointmentSerializer(appointment, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
         try:
             appointment = models.Appointment.objects.get(pk=pk)
         except models.Appointment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+            return Response({'error': 'appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+        appointment_title = appointment.title
         appointment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message':'appointment deleted successully', 'apponintment':appointment_title},status=status.HTTP_200_OK)
    
 
 class UsersViewSet(viewsets.ViewSet):
