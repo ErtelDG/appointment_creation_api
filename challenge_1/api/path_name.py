@@ -1,5 +1,7 @@
 from api import views
 
+# Creating a viewset for the models.
+
 user_list = views.UsersViewSet.as_view({
     'get': 'list',
     'post': 'create'
